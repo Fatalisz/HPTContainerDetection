@@ -1,5 +1,6 @@
 import cv2 as cv
 import myImageUtils
+import ObjectPredictation as op
 import numpy as np
 
 # READ IMAGE
@@ -13,10 +14,14 @@ contours, hierarchy = cv.findContours(threshImg, cv.RETR_TREE, cv.CHAIN_APPROX_S
 # Iterate through each contour
 for c in contours:
     x, y, w, h = cv.boundingRect(c)
-    cv.rectangle(imCopy, (x, y), (x+w, y+h), (255, 0, 0), 2)
-
-cv.imshow('image with contour', imCopy)
-cv.imshow('image origin', image)
-cv.imshow('image threshold', threshImg)
+    # Define Object Type Before Draw Rectangle
+    if op.isHaveContainer():
+        cv.rectangle(imCopy, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        cv.putText(imCopy, 'Test', (x, y + 5), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv.LINE_AA)
+    else:
+        cv.putText(imCopy, "don't have container", (x, y + 5), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv.LINE_AA)
+# Show Window
+cv.namedWindow('image', cv.WINDOW_NORMAL)
+cv.imshow('image', imCopy)
 cv.waitKey(0)
 cv.destroyAllWindows()
