@@ -18,6 +18,7 @@ for c in contours:
     if op.isHaveContainer():
         cv.rectangle(imCopy, (x, y), (x + w, y + h), (255, 0, 0), 2)
         cv.putText(imCopy, 'Test', (x, y + 5), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv.LINE_AA)
+        print('xxx')
     else:
         cv.putText(imCopy, "don't have container", (x, y + 5), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv.LINE_AA)
 # Show Window
