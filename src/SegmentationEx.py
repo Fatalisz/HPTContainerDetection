@@ -145,7 +145,7 @@ image_label_overlay = label2rgb(labeled_coins, image=coins)
 
 fig, axes = plt.subplots(1, 2, figsize=(8, 3), sharey=True)
 axes[0].imshow(coins, cmap=plt.cm.gray)
-axes[0].contour(segmentation, [0.5], linewidths=1.2, colors='y')
+axes[0].contour(segmentation, [0.5], linewidths=1.2, colors='r')
 axes[1].imshow(image_label_overlay)
 
 for a in axes:
