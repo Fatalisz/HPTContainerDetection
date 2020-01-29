@@ -1,5 +1,6 @@
-def isHaveContainer():
-    return False
+def isHaveContainer(viewType):
+    # Conditional with viewType
+    return True
 
 
 def isContainer():
