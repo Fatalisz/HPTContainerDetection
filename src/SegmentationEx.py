@@ -143,14 +143,18 @@ segmentation = ndi.binary_fill_holes(segmentation - 1)
 labeled_coins, _ = ndi.label(segmentation)
 image_label_overlay = label2rgb(labeled_coins, image=coins)
 
-fig, axes = plt.subplots(1, 2, figsize=(8, 3), sharey=True)
+from skimage.measure import regionprops
+from skimage.viewer import ImageViewer
+for region in regionprops(labeled_coins):
+    viewere = ImageViewer(region.image)
+    viewere.show()
+fig, axes = plt.subplots(1, 3, figsize=(8, 3), sharey=True)
 axes[0].imshow(coins, cmap=plt.cm.gray)
 axes[0].contour(segmentation, [0.5], linewidths=1.2, colors='r')
 axes[1].imshow(image_label_overlay)
+axes[2].imshow(labeled_coins)
 
 for a in axes:
     a.axis('off')
 
 plt.tight_layout()
-
-plt.show()
