@@ -24,6 +24,6 @@ def getThresholdedImage(image):
             fn_min = fn
             thresh = i
     # find otsu's threshold value with OpenCV function
-    ret, resultImage = cv.threshold(blurImg, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+    ret, resultImage = cv.threshold(blurImg, 0, thresh, cv.THRESH_BINARY + cv.THRESH_OTSU)
     print("{} {}".format(thresh, ret))
     return resultImage
