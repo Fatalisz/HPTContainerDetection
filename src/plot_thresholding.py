@@ -28,7 +28,7 @@ from skimage import io
 #
 # .. [2] https://en.wikipedia.org/wiki/Otsu's_method
 #
-image = io.imread('../images/Top/thumbnail_IMG_9517.jpg', True)
+image = io.imread('../images/Top/IMG_4208.jpg', True)
 thresh = filters.threshold_yen(image)
 binary = image > thresh
 
@@ -64,7 +64,7 @@ plt.show()
 
 from skimage.filters import try_all_threshold
 
-img = io.imread('../images/Top/thumbnail_IMG_9517.jpg', True)
+img = io.imread('../images/Top/IMG_4208.jpg', True)
 
 # Here, we specify a radius for local thresholding algorithms.
 # If it is not specified, only global algorithms are called.
