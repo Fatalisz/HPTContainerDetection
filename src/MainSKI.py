@@ -39,23 +39,36 @@ for region in regionprops(con):
         minr, minc, maxr, maxc = region.bbox
         # VALIDATE ASPECT RATIO
         if 7 < (maxc-minc) / (maxr-minr) < 10:
-            # TODO GET INNER TEXT
-            for regionText in regionprops(img_as_int(region.image)):
-                minrTxt, mincTxt, maxrTxt, maxcTxt = regionText.bbox
-                # DRAW RECTANGLE
-                rect = mpatches.Rectangle((mincTxt - 5, minrTxt - 5), maxcTxt - mincTxt + 10, maxrTxt - minrTxt + 10,
-                                          fill=False, edgecolor='blue', linewidth=2)
-                ax.add_patch(rect)
             # DRAW RECTANGLE
             rect = mpatches.Rectangle((minc-5, minr-5), maxc - minc + 10, maxr - minr + 10,
                                       fill=False, edgecolor='red', linewidth=2)
             ax.add_patch(rect)
             # SAVE CROPPED IMAGE
             cropped = binary[minr:maxr, minc:maxc]
-            io.imsave('../output/region-image'+str(time.time())+'.png', img_as_ubyte(cropped))
+            # GET INNER TEXT
+            removeSmallPicText = morphology.remove_small_objects(cropped, 50)
+            labelText = label(removeSmallPicText)
+            regionsCroppedLabel = regionprops(labelText)
+            if len(regionsCroppedLabel) > 10:
+                io.imsave('../output/region-group-text/groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
+                for regionText in regionsCroppedLabel:
+                    minrTxt, mincTxt, maxrTxt, maxcTxt = regionText.bbox
+                    # VALIDATE RATIO TEXT
+                    minrS = minr + minrTxt
+                    maxrS = minr + maxrTxt
+                    mincS = minc + mincTxt
+                    maxcS = minc + maxcTxt
+                    # DRAW RECTANGLE
+                    rect = mpatches.Rectangle((mincS - 5, minrS - 5), maxcS - mincS + 10, maxrS - minrS + 10,
+                                              fill=False, edgecolor='blue', linewidth=2)
+                    ax.add_patch(rect)
+                    croppedText = binary[minrS:maxrS, mincS:maxcS]
+                    io.imsave('../output/region-split-text/spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
+                    # viewr = ImageViewer(regionText.image)
+                    # viewr.show()
 ax.axis('image')
 ax.set_xticks([])
 ax.set_yticks([])
-plt.savefig('../output/full-image'+str(time.time())+'.png')
+plt.savefig('../output/full-image/full-image'+str(time.time())+'.png')
 plt.show()
 
