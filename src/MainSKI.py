@@ -18,16 +18,41 @@ import time;
 from skimage import img_as_int
 
 # PREPARE INPUT
-image = io.imread('../images/Top/thumbnail_IMG_9517.jpg', True)
+image = io.imread('../images/ContainerAllSides/Top/20200130120056775T.jpg', True)
 denoise_image = denoise_tv_chambolle(image)
-thresh = filter.threshold_yen(denoise_image)
+thresh = filter.threshold_otsu(denoise_image, 230)
 binary = image > thresh
+fig, ax = plt.subplots(figsize=(4, 3))
+ax.imshow(binary, cmap=plt.cm.gray)
+ax.set_title('binary')
+ax.axis('off')
+
 can = fea.canny(binary)
+fig, ax = plt.subplots(figsize=(4, 3))
+ax.imshow(can, cmap=plt.cm.gray)
+ax.set_title('can')
+ax.axis('off')
+
 filled_img = ndi.binary_fill_holes(can)
+fig, ax = plt.subplots(figsize=(4, 3))
+ax.imshow(filled_img, cmap=plt.cm.gray)
+ax.set_title('cfilled_imgan')
+ax.axis('off')
+
 # REMOVE SMALL OBJECT AFTER CANNY
-removeSmallPic = morphology.remove_small_objects(filled_img, 180)
+removeSmallPic = morphology.remove_small_objects(filled_img, 100)
+fig, ax = plt.subplots(figsize=(4, 3))
+ax.imshow(removeSmallPic, cmap=plt.cm.gray)
+ax.set_title('removeSmallPic')
+ax.axis('off')
+
 #### PROCESS
 bw = morphology.closing(removeSmallPic, morphology.rectangle(5,100))
+fig, ax = plt.subplots(figsize=(4, 3))
+ax.imshow(bw, cmap=plt.cm.gray)
+ax.set_title('bw')
+ax.axis('off')
+
 ## LABEL
 con = label(bw)
 fig, ax = plt.subplots()
@@ -50,7 +75,7 @@ for region in regionprops(con):
             labelText = label(removeSmallPicText)
             regionsCroppedLabel = regionprops(labelText)
             if len(regionsCroppedLabel) > 10:
-                io.imsave('../output/region-group-text/groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
+                #io.imsave('../output/region-group-text/groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
                 for regionText in regionsCroppedLabel:
                     minrTxt, mincTxt, maxrTxt, maxcTxt = regionText.bbox
                     # VALIDATE RATIO TEXT
@@ -63,12 +88,12 @@ for region in regionprops(con):
                                               fill=False, edgecolor='blue', linewidth=2)
                     ax.add_patch(rect)
                     croppedText = binary[minrS:maxrS, mincS:maxcS]
-                    io.imsave('../output/region-split-text/spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
+                    #io.imsave('../output/region-split-text/spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
                     # viewr = ImageViewer(regionText.image)
                     # viewr.show()
 ax.axis('image')
 ax.set_xticks([])
 ax.set_yticks([])
-plt.savefig('../output/full-image/full-image'+str(time.time())+'.png')
+#plt.savefig('../output/full-image/full-image'+str(time.time())+'.png')
 plt.show()
 

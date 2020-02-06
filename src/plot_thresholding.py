@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 from skimage import data
 from skimage import filters
 from skimage import io
+from skimage.exposure import histogram
 
 ######################################################################
 # We illustrate how to apply one of these thresholding algorithms.
@@ -28,8 +29,9 @@ from skimage import io
 #
 # .. [2] https://en.wikipedia.org/wiki/Otsu's_method
 #
-image = io.imread('../images/Top/IMG_4208.jpg', True)
-thresh = filters.threshold_yen(image)
+
+image = io.imread('../images/ContainerAllSides/Top/20200130120056775T.jpg', True)
+thresh = filters.threshold_otsu(image, 230)
 binary = image > thresh
 
 fig, axes = plt.subplots(ncols=3, figsize=(8, 2.5))
@@ -64,7 +66,7 @@ plt.show()
 
 from skimage.filters import try_all_threshold
 
-img = io.imread('../images/Top/IMG_4208.jpg', True)
+img = io.imread('../images/ContainerAllSides/Top/20200127182956653T.jpg', True)
 
 # Here, we specify a radius for local thresholding algorithms.
 # If it is not specified, only global algorithms are called.
