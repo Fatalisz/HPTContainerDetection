@@ -18,7 +18,7 @@ import time;
 from skimage import img_as_int
 
 # PREPARE INPUT
-image = io.imread('../images/ContainerAllSides/Top/20200130120056775T.jpg', True)
+image = io.imread('../images/ContainerAllSides/Top/20200127182956653T.jpg', True)
 denoise_image = denoise_tv_chambolle(image)
 thresh = filter.threshold_otsu(denoise_image, 230)
 binary = image > thresh
