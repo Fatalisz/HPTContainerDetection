@@ -4,6 +4,7 @@ from skimage.morphology import remove_small_objects, closing, rectangle
 from skimage.measure import label, regionprops
 from skimage.viewer import ImageViewer
 from skimage.restoration import denoise_tv_chambolle
+from skimage.filters import try_all_threshold
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from scipy import ndimage as ndi
@@ -12,35 +13,48 @@ import ContainerDetectionConstant as const
 
 # PREPARE IMAGE FOR SEGMENTATION
 def preProcessImage(image):
-    # DE NOISE IMAGE
+    # DENOISE IMAGE
     denoiseImage = denoise_tv_chambolle(image)
+    # CROP INTEREST PART FOR THRESHOLD
+    imageHeight, imageWidth = image.shape
+    minHeightInput = int(imageHeight*(1-const.TOP_VIEW_PROCESS_HORIZONTAL_PART))
+    minWidthInput = int(imageWidth*(1-const.TOP_VIEW_PROCESS_VERTICLE_PART)/2)
+    maxWidthInput = int(imageWidth - minWidthInput)
+    croppedInputImage = image[minHeightInput:imageHeight, minWidthInput:maxWidthInput]
+    # fig, ax = plt.subplots(figsize=(4, 3))
+    # ax.imshow(croppedInputImage, cmap=plt.cm.gray)
+    # ax.set_title('input')
+    # ax.axis('off')
+    # TEST THRESHOLD
+    # fig, ax = try_all_threshold(croppedInputImage, figsize=(10, 8), verbose=False)
+    # plt.show()
     # GET THRESHOLD IMAGE
-    thresh = filters.threshold_otsu(denoiseImage, 230)
+    thresh = filters.threshold_yen(croppedInputImage)
     binaryImage = image > thresh
-    fig, ax = plt.subplots(figsize=(4, 3))
-    ax.imshow(binaryImage, cmap=plt.cm.gray)
-    ax.set_title('binary')
-    ax.axis('off')
+    # fig, ax = plt.subplots(figsize=(4, 3))
+    # ax.imshow(binaryImage, cmap=plt.cm.gray)
+    # ax.set_title('binary')
+    # ax.axis('off')
     # EDGE DETECTION
     can = canny(binaryImage)
-    fig, ax = plt.subplots(figsize=(4, 3))
-    ax.imshow(can, cmap=plt.cm.gray)
-    ax.set_title('can')
-    ax.axis('off')
+    # fig, ax = plt.subplots(figsize=(4, 3))
+    # ax.imshow(can, cmap=plt.cm.gray)
+    # ax.set_title('can')
+    # ax.axis('off')
     # FILLING HOLD FROM EDGE DETECTION
     filled_img = ndi.binary_fill_holes(can)
-    fig, ax = plt.subplots(figsize=(4, 3))
-    ax.imshow(filled_img, cmap=plt.cm.gray)
-    ax.set_title('filled_image')
-    ax.axis('off')
+    # fig, ax = plt.subplots(figsize=(4, 3))
+    # ax.imshow(filled_img, cmap=plt.cm.gray)
+    # ax.set_title('filled_image')
+    # ax.axis('off')
     # REMOVE SMALL OBJECT IN IMAGE
-    removeSmallPic = remove_small_objects(filled_img, 100)
+    removeSmallPic = remove_small_objects(filled_img, const.TOP_VIEW_REMOVE_SMALL_PIC_MIN_SIZE)
     fig, ax = plt.subplots(figsize=(4, 3))
     ax.imshow(removeSmallPic, cmap=plt.cm.gray)
     ax.set_title('removeSmallPic')
     ax.axis('off')
     # DILATION FOR TEXT DETECTION
-    dilationImage = closing(removeSmallPic, rectangle(5, 100))
+    dilationImage = closing(removeSmallPic, rectangle(5, const.TOP_VIEW_DILATION_HORIZONTAL_SIZE))
     fig, ax = plt.subplots(figsize=(4, 3))
     ax.imshow(dilationImage, cmap=plt.cm.gray)
     ax.set_title('bw')
