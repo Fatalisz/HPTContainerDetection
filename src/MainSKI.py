@@ -14,7 +14,7 @@ from skimage.segmentation import clear_border
 from scipy import ndimage as ndi
 from skimage import draw
 import numpy as np
-import time;
+import time
 from skimage import img_as_int
 
 # PREPARE INPUT
