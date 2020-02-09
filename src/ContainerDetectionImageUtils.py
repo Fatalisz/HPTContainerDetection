@@ -91,19 +91,20 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea):
                     #io.imsave('../output/region-group-text/groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
                     for regionText in regionsCroppedLabel:
                         minrTxt, mincTxt, maxrTxt, maxcTxt = regionText.bbox
-                        # VALIDATE RATIO TEXT TODO
-                        minrS = minr + minrTxt - const.TEXT_IMAGE_CROP_PADDING_SIZE
-                        maxrS = minr + maxrTxt + const.TEXT_IMAGE_CROP_PADDING_SIZE
-                        mincS = minc + mincTxt - const.TEXT_IMAGE_CROP_PADDING_SIZE
-                        maxcS = minc + maxcTxt + const.TEXT_IMAGE_CROP_PADDING_SIZE
-                        # DRAW RECTANGLE
-                        rect = mpatches.Rectangle((mincS, minrS), maxcS - mincS, maxrS - minrS,
-                                                  fill=False, edgecolor='blue', linewidth=2)
-                        ax.add_patch(rect)
-                        croppedText = binaryImage[minrS:maxrS, mincS:maxcS]
-                        #io.imsave('../output/region-split-text/spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
-                        # viewr = ImageViewer(regionText.image)
-                        # viewr.show()
+                        # VALIDATE RATIO TEXT
+                        if const.MIN_ASPECT_RATIO_TEXT < (maxc - minc) / (maxr - minr) < const.MAX_ASPECT_RATIO_TEXT:
+                            minrS = minr + minrTxt - const.TEXT_IMAGE_CROP_PADDING_SIZE
+                            maxrS = minr + maxrTxt + const.TEXT_IMAGE_CROP_PADDING_SIZE
+                            mincS = minc + mincTxt - const.TEXT_IMAGE_CROP_PADDING_SIZE
+                            maxcS = minc + maxcTxt + const.TEXT_IMAGE_CROP_PADDING_SIZE
+                            # DRAW RECTANGLE
+                            rect = mpatches.Rectangle((mincS, minrS), maxcS - mincS, maxrS - minrS,
+                                                      fill=False, edgecolor='blue', linewidth=2)
+                            ax.add_patch(rect)
+                            croppedText = binaryImage[minrS:maxrS, mincS:maxcS]
+                            #io.imsave('../output/region-split-text/spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
+                            # viewr = ImageViewer(regionText.image)
+                            # viewr.show()
 
 def getInterestCroppedArea(image):
     imageHeight, imageWidth = image.shape
