@@ -7,11 +7,11 @@ if __name__ == '__main__':
     # PREPARE INPUT
     image = io.imread('../images/ContainerAllSides/Top/20200128082626394T.jpg', True)
     #image = io.imread('../images/Top/thumbnail_IMG_9517.jpg', True)
-    imageForProcess, binaryImage = preProcessImage(image)
+    imageForProcess, binaryImage, interestedArea = preProcessImage(image)
     # INIT PY_PLOT
     fig, ax = plt.subplots()
     ax.imshow(image, cmap=plt.cm.gray)
-    doGetCroppedTextFromImage(imageForProcess, binaryImage, ax)
+    doGetCroppedTextFromImage(imageForProcess, binaryImage, ax, interestedArea)
     ax.axis('image')
     ax.set_xticks([])
     ax.set_yticks([])

@@ -11,6 +11,7 @@ from matplotlib import path
 from scipy import ndimage as ndi
 import time
 import ContainerDetectionConstant as const
+from CustomImageClass import CustomImageClass
 
 # PREPARE IMAGE FOR SEGMENTATION
 def preProcessImage(image):
@@ -58,15 +59,16 @@ def preProcessImage(image):
     ax.set_title('bw')
     ax.axis('off')
     plt.show()
-    return dilationImage, binaryImage
+    interestedArea = CustomImageClass(minInterestHeight, maxInterestHeight, minInterestWidth, maxInterestWidth)
+    return dilationImage, binaryImage, interestedArea
 
 # SEGMENTAION AND GET CROPPED TEXT FROM IMAGE
 
-def doGetCroppedTextFromImage(dilationImage, binaryImage, ax):
+def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea):
     labeledImage = label(dilationImage)
     for region in regionprops(labeledImage):
         # take regions with large enough areas
-        if region.area >= const.MIN_REGION_AREA:
+        if region.area >= const.MIN_REGION_AREA and isRegionInInterestingArea(region, interestedArea):
             # GET COORDINATE
             minr, minc, maxr, maxc = region.bbox
             # ADD PADDING
@@ -110,12 +112,11 @@ def getInterestCroppedArea(image):
     maxWidthInput = int(imageWidth - minWidthInput)
     return minHeightInput, imageHeight, minWidthInput, maxWidthInput
 
-def isRegionInInterestingArea(region, image):
-    minInterestHeight, maxInterestHeight, minInterestWidth, maxInterestWidth = getInterestCroppedArea(image)
+def isRegionInInterestingArea(region, interestedArea):
     minr, minc, maxr, maxc = region.bbox
     # VALIDATE WIDTH
-    if minInterestHeight <= minr <= maxInterestHeight and minInterestHeight <= maxr <= maxInterestHeight:
-        if minInterestWidth <= minc <= maxInterestWidth and minInterestWidth <= maxc <= maxInterestWidth:
+    if interestedArea.getMinY() <= minr <= interestedArea.getMaxY() and interestedArea.getMinY() <= maxr <= interestedArea.getMaxY():
+        if interestedArea.getMinX() <= minc <= interestedArea.getMaxX() and interestedArea.getMinX() <= maxc <= interestedArea.getMaxX():
             # PASS
             return True
     # FAIL
