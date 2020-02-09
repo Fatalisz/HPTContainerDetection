@@ -7,6 +7,7 @@ from skimage.restoration import denoise_tv_chambolle
 from skimage.filters import try_all_threshold
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from matplotlib import path
 from scipy import ndimage as ndi
 import time
 import ContainerDetectionConstant as const
@@ -16,18 +17,15 @@ def preProcessImage(image):
     # DENOISE IMAGE
     denoiseImage = denoise_tv_chambolle(image)
     # CROP INTEREST PART FOR THRESHOLD
-    imageHeight, imageWidth = image.shape
-    minHeightInput = int(imageHeight*(1-const.TOP_VIEW_PROCESS_HORIZONTAL_PART))
-    minWidthInput = int(imageWidth*(1-const.TOP_VIEW_PROCESS_VERTICLE_PART)/2)
-    maxWidthInput = int(imageWidth - minWidthInput)
-    croppedInputImage = image[minHeightInput:imageHeight, minWidthInput:maxWidthInput]
-    # fig, ax = plt.subplots(figsize=(4, 3))
-    # ax.imshow(croppedInputImage, cmap=plt.cm.gray)
-    # ax.set_title('input')
-    # ax.axis('off')
+    minInterestHeight, maxInterestHeight, minInterestWidth, maxInterestWidth = getInterestCroppedArea(denoiseImage)
+    croppedInputImage = denoiseImage[minInterestHeight:maxInterestHeight, minInterestWidth:maxInterestWidth]
+    fig, ax = plt.subplots(figsize=(4, 3))
+    ax.imshow(croppedInputImage, cmap=plt.cm.gray)
+    ax.set_title('input')
+    ax.axis('off')
     # TEST THRESHOLD
-    # fig, ax = try_all_threshold(croppedInputImage, figsize=(10, 8), verbose=False)
-    # plt.show()
+    fig, ax = try_all_threshold(croppedInputImage, figsize=(10, 8), verbose=False)
+    plt.show()
     # GET THRESHOLD IMAGE
     thresh = filters.threshold_yen(croppedInputImage)
     binaryImage = image > thresh
@@ -71,11 +69,15 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax):
         if region.area >= const.MIN_REGION_AREA:
             # GET COORDINATE
             minr, minc, maxr, maxc = region.bbox
+            # ADD PADDING
+            minr -= const.TEXT_IMAGE_CROP_PADDING_SIZE
+            minc -= const.TEXT_IMAGE_CROP_PADDING_SIZE
+            maxr += const.TEXT_IMAGE_CROP_PADDING_SIZE
+            maxc += const.TEXT_IMAGE_CROP_PADDING_SIZE
             # VALIDATE ASPECT RATIO
             if const.MIN_ASPECT_RATIO_GROUP_TEXT < (maxc - minc) / (maxr - minr) < const.MAX_ASPECT_RATIO_GROUP_TEXT:
                 # DRAW RECTANGLE
-                rect = mpatches.Rectangle((minc - 5, minr - 5), maxc - minc + 10, maxr - minr + 10,
-                                          fill=False, edgecolor='red', linewidth=2)
+                rect = mpatches.Rectangle((minc, minr), maxc - minc, maxr - minr, fill=False, edgecolor='red', linewidth=2)
                 ax.add_patch(rect)
                 # SAVE CROPPED IMAGE
                 cropped = binaryImage[minr:maxr, minc:maxc]
@@ -84,19 +86,37 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax):
                 labelText = label(removeSmallPicText)
                 regionsCroppedLabel = regionprops(labelText)
                 if len(regionsCroppedLabel) >= const.MIN_NUMBER_OF_TEXT_IN_GROUP_TEXT:
-                    io.imsave('../output/region-group-text/groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
+                    #io.imsave('../output/region-group-text/groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
                     for regionText in regionsCroppedLabel:
                         minrTxt, mincTxt, maxrTxt, maxcTxt = regionText.bbox
-                        # VALIDATE RATIO TEXT
-                        minrS = minr + minrTxt
-                        maxrS = minr + maxrTxt
-                        mincS = minc + mincTxt
-                        maxcS = minc + maxcTxt
+                        # VALIDATE RATIO TEXT TODO
+                        minrS = minr + minrTxt - const.TEXT_IMAGE_CROP_PADDING_SIZE
+                        maxrS = minr + maxrTxt + const.TEXT_IMAGE_CROP_PADDING_SIZE
+                        mincS = minc + mincTxt - const.TEXT_IMAGE_CROP_PADDING_SIZE
+                        maxcS = minc + maxcTxt + const.TEXT_IMAGE_CROP_PADDING_SIZE
                         # DRAW RECTANGLE
-                        rect = mpatches.Rectangle((mincS - 5, minrS - 5), maxcS - mincS + 10, maxrS - minrS + 10,
+                        rect = mpatches.Rectangle((mincS, minrS), maxcS - mincS, maxrS - minrS,
                                                   fill=False, edgecolor='blue', linewidth=2)
                         ax.add_patch(rect)
                         croppedText = binaryImage[minrS:maxrS, mincS:maxcS]
-                        io.imsave('../output/region-split-text/spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
-                        viewr = ImageViewer(regionText.image)
-                        viewr.show()
+                        #io.imsave('../output/region-split-text/spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
+                        # viewr = ImageViewer(regionText.image)
+                        # viewr.show()
+
+def getInterestCroppedArea(image):
+    imageHeight, imageWidth = image.shape
+    minHeightInput = int(imageHeight * (1 - const.TOP_VIEW_PROCESS_HORIZONTAL_PART))
+    minWidthInput = int(imageWidth * (1 - const.TOP_VIEW_PROCESS_VERTICLE_PART) / 2)
+    maxWidthInput = int(imageWidth - minWidthInput)
+    return minHeightInput, imageHeight, minWidthInput, maxWidthInput
+
+def isRegionInInterestingArea(region, image):
+    minInterestHeight, maxInterestHeight, minInterestWidth, maxInterestWidth = getInterestCroppedArea(image)
+    minr, minc, maxr, maxc = region.bbox
+    # VALIDATE WIDTH
+    if minInterestHeight <= minr <= maxInterestHeight and minInterestHeight <= maxr <= maxInterestHeight:
+        if minInterestWidth <= minc <= maxInterestWidth and minInterestWidth <= maxc <= maxInterestWidth:
+            # PASS
+            return True
+    # FAIL
+    return False
