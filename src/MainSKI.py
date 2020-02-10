@@ -15,7 +15,7 @@ if __name__ == '__main__':
     ax.axis('image')
     ax.set_xticks([])
     ax.set_yticks([])
-   # fig.savefig('../output/full-image/full-image'+str(time.time())+'.png')
+    fig.savefig('../output/full-image/full-image'+str(time.time())+'.png')
     plt.show()
 
 
