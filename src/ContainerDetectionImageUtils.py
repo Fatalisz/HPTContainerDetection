@@ -9,10 +9,11 @@ from skimage.color import rgb2gray
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from scipy import ndimage as ndi
-import time
+from datetime import datetime
 import ContainerDetectionConstant as const
 from CustomImageClass import CustomImageClass
 import os
+
 
 # PREPARE IMAGE FOR SEGMENTATION
 def preProcessImage(image):
@@ -58,6 +59,7 @@ def preProcessImage(image):
     interestedArea = CustomImageClass(minInterestHeight, maxInterestHeight, minInterestWidth, maxInterestWidth)
     return dilationImage, binaryImage, interestedArea
 
+
 # SEGMENTAION AND GET CROPPED TEXT FROM IMAGE
 
 def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea, outputFolderPath):
@@ -92,11 +94,14 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea, ou
                                               groupTextMaxY - groupTextMinY, fill=False, edgecolor='red', linewidth=2)
                     ax.add_patch(rect)
                     # SAVE GROUP TEXT
-                    io.imsave(outputFolderPath + const.REGION_GROUP_TEXT_FOLDER_NAME + 'groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
+                    io.imsave(
+                        outputFolderPath + const.REGION_GROUP_TEXT_FOLDER_NAME + 'groupText' + getDateTimeStrWithFormat(
+                            const.DATE_TIME_PATTERN_FOLDER_NAME) + '.png', img_as_ubyte(cropped))
                     for regionText in regionsCroppedLabel:
                         minrTxt, mincTxt, maxrTxt, maxcTxt = regionText.bbox
                         # VALIDATE RATIO TEXT
-                        if const.MIN_ASPECT_RATIO_TEXT < (maxcTxt - mincTxt) / (maxrTxt - minrTxt) < const.MAX_ASPECT_RATIO_TEXT:
+                        if const.MIN_ASPECT_RATIO_TEXT < (maxcTxt - mincTxt) / (
+                                maxrTxt - minrTxt) < const.MAX_ASPECT_RATIO_TEXT:
                             # TEXT COORDINATE
                             minrS = minr + minrTxt - const.TEXT_IMAGE_CROP_PADDING_SIZE
                             maxrS = minr + maxrTxt + const.TEXT_IMAGE_CROP_PADDING_SIZE
@@ -107,13 +112,17 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea, ou
                             textRecMinX = groupTextMinX + mincTxt - const.TEXT_IMAGE_CROP_PADDING_SIZE
                             textRecMaxX = groupTextMinX + maxcTxt + const.TEXT_IMAGE_CROP_PADDING_SIZE
                             # DRAW RECTANGLE
-                            rect = mpatches.Rectangle((textRecMinX, textRecMinY), textRecMaxX - textRecMinX, textRecMaxY - textRecMinY,
+                            rect = mpatches.Rectangle((textRecMinX, textRecMinY), textRecMaxX - textRecMinX,
+                                                      textRecMaxY - textRecMinY,
                                                       fill=False, edgecolor='blue', linewidth=2)
                             ax.add_patch(rect)
                             croppedText = binaryImage[minrS:maxrS, mincS:maxcS]
-                            io.imsave(outputFolderPath + const.REGION_SPLIT_TEXT_FOLDER_NAME + 'spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
+                            io.imsave(
+                                outputFolderPath + const.REGION_SPLIT_TEXT_FOLDER_NAME + 'spltText' + getDateTimeStrWithFormat(
+                                    const.DATE_TIME_PATTERN_FOLDER_NAME) + '.png', img_as_ubyte(croppedText))
                             # viewr = ImageViewer(regionText.image)
                             # viewr.show()
+
 
 def getInterestCroppedArea(image):
     imageHeight, imageWidth = image.shape
@@ -121,6 +130,7 @@ def getInterestCroppedArea(image):
     minWidthInput = int(imageWidth * (1 - const.TOP_VIEW_PROCESS_VERTICLE_PART) / 2)
     maxWidthInput = int(imageWidth - minWidthInput)
     return minHeightInput, imageHeight, minWidthInput, maxWidthInput
+
 
 def isRegionInInterestingArea(region, interestedArea):
     minr, minc, maxr, maxc = region.bbox
@@ -132,9 +142,19 @@ def isRegionInInterestingArea(region, interestedArea):
     # FAIL
     return False
 
+
 def createFolderOutputByTime():
+    # CREATE FOLDER FOR OUTPUT PATH
+    outputPath = '../' + const.OUTPUT_FOLDER_NAME
+    try:
+        if not os.path.exists(outputPath):
+            os.mkdir(outputPath)
+    except OSError:
+        print("Creation of the directory %s failed" % outputPath)
+
     # CREATE FOLDER FOR OUTPUT IMAGE
-    outputFolderPath = '../' + const.OUTPUT_FOLDER_NAME + str(time.time()) + '/'
+    outputFolderPath = outputPath + getDateTimeStrWithFormat(
+        const.DATE_TIME_PATTERN_FOLDER_NAME) + '/'
     try:
         os.mkdir(outputFolderPath)
     except OSError:
@@ -169,3 +189,7 @@ def createFolderOutputByTime():
         print("Creation of the directory %s failed" % outputTextFolderPath)
 
     return outputFolderPath
+
+
+def getDateTimeStrWithFormat(format):
+    return datetime.now().strftime(format)
