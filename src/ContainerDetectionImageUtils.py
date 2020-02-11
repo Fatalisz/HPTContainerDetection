@@ -20,10 +20,10 @@ def preProcessImage(image):
     # CROP INTEREST PART FOR THRESHOLD
     minInterestHeight, maxInterestHeight, minInterestWidth, maxInterestWidth = getInterestCroppedArea(denoiseImage)
     croppedInputImage = denoiseImage[minInterestHeight:maxInterestHeight, minInterestWidth:maxInterestWidth]
-    # fig, ax = plt.subplots(figsize=(4, 3))
-    # ax.imshow(croppedInputImage, cmap=plt.cm.gray)
-    # ax.set_title('input')
-    # ax.axis('off')
+    fig, ax = plt.subplots(figsize=(4, 3))
+    ax.imshow(croppedInputImage, cmap=plt.cm.gray)
+    ax.set_title('input')
+    ax.axis('off')
     # TEST THRESHOLD
     # fig, ax = try_all_threshold(croppedInputImage, figsize=(10, 8), verbose=False)
     # plt.show()
@@ -90,7 +90,7 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea):
                                               groupTextMaxY - groupTextMinY, fill=False, edgecolor='red', linewidth=2)
                     ax.add_patch(rect)
                     # SAVE GROUP TEXT
-                    io.imsave('../output/region-group-text/groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
+                    # io.imsave('../output/region-group-text/groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
                     for regionText in regionsCroppedLabel:
                         minrTxt, mincTxt, maxrTxt, maxcTxt = regionText.bbox
                         # VALIDATE RATIO TEXT
@@ -109,7 +109,7 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea):
                                                       fill=False, edgecolor='blue', linewidth=2)
                             ax.add_patch(rect)
                             croppedText = binaryImage[minrS:maxrS, mincS:maxcS]
-                            io.imsave('../output/region-split-text/spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
+                            # io.imsave('../output/region-split-text/spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
                             # viewr = ImageViewer(regionText.image)
                             # viewr.show()
 
