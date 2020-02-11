@@ -1,17 +1,17 @@
 from skimage import filters, io, img_as_ubyte
 from skimage.feature import canny
-from skimage.morphology import remove_small_objects, closing, rectangle
+from skimage.morphology import closing, rectangle
 from skimage.measure import label, regionprops
 from skimage.viewer import ImageViewer
 from skimage.restoration import denoise_tv_chambolle
 from skimage.filters import try_all_threshold
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from matplotlib import path
 from scipy import ndimage as ndi
 import time
 import ContainerDetectionConstant as const
 from CustomImageClass import CustomImageClass
+import os
 
 # PREPARE IMAGE FOR SEGMENTATION
 def preProcessImage(image):
@@ -58,7 +58,7 @@ def preProcessImage(image):
 
 # SEGMENTAION AND GET CROPPED TEXT FROM IMAGE
 
-def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea):
+def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea, outputFolderPath):
     labeledImage = label(dilationImage)
     for region in regionprops(labeledImage):
         # take regions with large enough areas
@@ -90,7 +90,7 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea):
                                               groupTextMaxY - groupTextMinY, fill=False, edgecolor='red', linewidth=2)
                     ax.add_patch(rect)
                     # SAVE GROUP TEXT
-                    io.imsave('../output/region-group-text/groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
+                    io.imsave(outputFolderPath + const.REGION_GROUP_TEXT_FOLDER_NAME + 'groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
                     for regionText in regionsCroppedLabel:
                         minrTxt, mincTxt, maxrTxt, maxcTxt = regionText.bbox
                         # VALIDATE RATIO TEXT
@@ -109,7 +109,7 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea):
                                                       fill=False, edgecolor='blue', linewidth=2)
                             ax.add_patch(rect)
                             croppedText = binaryImage[minrS:maxrS, mincS:maxcS]
-                            io.imsave('../output/region-split-text/spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
+                            io.imsave(outputFolderPath + const.REGION_SPLIT_TEXT_FOLDER_NAME + 'spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
                             # viewr = ImageViewer(regionText.image)
                             # viewr.show()
 
@@ -129,3 +129,41 @@ def isRegionInInterestingArea(region, interestedArea):
             return True
     # FAIL
     return False
+
+def createFolderOutputByTime():
+    # CREATE FOLDER FOR OUTPUT IMAGE
+    outputFolderPath = '../' + const.OUTPUT_FOLDER_NAME + str(time.time()) + '/'
+    try:
+        os.mkdir(outputFolderPath)
+    except OSError:
+        print("Creation of the directory %s failed" % outputFolderPath)
+
+    # CREATE FOLDER INPUT IMAGE
+    inputImageFolderPath = outputFolderPath + const.INPUT_FOLDER_NAME
+    try:
+        os.mkdir(inputImageFolderPath)
+    except OSError:
+        print("Creation of the directory %s failed" % inputImageFolderPath)
+
+    # CREATE FOLDER OUTPUT RECTANGLE IMAGE
+    outputRecImageFolderPath = outputFolderPath + const.RECTANGLE_IMAGE_FOLDER_NAME
+    try:
+        os.mkdir(outputRecImageFolderPath)
+    except OSError:
+        print("Creation of the directory %s failed" % outputRecImageFolderPath)
+
+    # CREATE FOLDER OUTPUT GROUP TEXT
+    outputGroupTextFolderPath = outputFolderPath + const.REGION_GROUP_TEXT_FOLDER_NAME
+    try:
+        os.mkdir(outputGroupTextFolderPath)
+    except OSError:
+        print("Creation of the directory %s failed" % outputGroupTextFolderPath)
+
+    # CREATE FOLDER OUTPUT TEXT
+    outputTextFolderPath = outputFolderPath + const.REGION_SPLIT_TEXT_FOLDER_NAME
+    try:
+        os.mkdir(outputTextFolderPath)
+    except OSError:
+        print("Creation of the directory %s failed" % outputTextFolderPath)
+
+    return outputFolderPath
