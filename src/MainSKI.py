@@ -5,7 +5,7 @@ import time
 
 if __name__ == '__main__':
     # PREPARE INPUT
-    image = io.imread('../images/ContainerAllSides/Top/20200127184934380T.jpg', True)
+    image = io.imread('../images/ContainerAllSides/Top/20200127182956653T.jpg', True)
     #image = io.imread('../images/Top/thumbnail_IMG_9517.jpg', True)
     imageForProcess, binaryImage, interestedArea = preProcessImage(image)
     # INIT PY_PLOT

@@ -46,12 +46,6 @@ def preProcessImage(image):
     ax.imshow(filled_img, cmap=plt.cm.gray)
     ax.set_title('filled_image')
     ax.axis('off')
-    # REMOVE SMALL OBJECT IN IMAGE
-    # removeSmallPic = remove_small_objects(filled_img, const.TOP_VIEW_REMOVE_SMALL_PIC_MIN_SIZE)
-    # fig, ax = plt.subplots(figsize=(4, 3))
-    # ax.imshow(removeSmallPic, cmap=plt.cm.gray)
-    # ax.set_title('removeSmallPic')
-    # ax.axis('off')
     # DILATION FOR TEXT DETECTION
     dilationImage = closing(filled_img, rectangle(5, const.TOP_VIEW_DILATION_HORIZONTAL_SIZE))
     fig, ax = plt.subplots(figsize=(4, 3))
@@ -85,15 +79,17 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea):
                 groupTextMaxY = minCroppedY + maxr
                 groupTextMinX = minCroppedX + minc
                 groupTextMaxX = minCroppedX + maxc
-                # DRAW RECTANGLE
-                rect = mpatches.Rectangle((groupTextMinX, groupTextMinY), groupTextMaxX - groupTextMinX, groupTextMaxY - groupTextMinY, fill=False, edgecolor='red', linewidth=2)
-                ax.add_patch(rect)
                 # SAVE CROPPED IMAGE
                 cropped = binaryImage[minr:maxr, minc:maxc]
                 # GET INNER TEXT
                 labelText = label(cropped)
                 regionsCroppedLabel = regionprops(labelText)
                 if len(regionsCroppedLabel) >= const.MIN_NUMBER_OF_TEXT_IN_GROUP_TEXT:
+                    # DRAW RECTANGLE GROUP TEXT
+                    rect = mpatches.Rectangle((groupTextMinX, groupTextMinY), groupTextMaxX - groupTextMinX,
+                                              groupTextMaxY - groupTextMinY, fill=False, edgecolor='red', linewidth=2)
+                    ax.add_patch(rect)
+                    # SAVE GROUP TEXT
                     io.imsave('../output/region-group-text/groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
                     for regionText in regionsCroppedLabel:
                         minrTxt, mincTxt, maxrTxt, maxcTxt = regionText.bbox
