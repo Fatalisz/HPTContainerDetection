@@ -90,7 +90,7 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea):
                                               groupTextMaxY - groupTextMinY, fill=False, edgecolor='red', linewidth=2)
                     ax.add_patch(rect)
                     # SAVE GROUP TEXT
-                    # io.imsave('../output/region-group-text/groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
+                    io.imsave('../output/region-group-text/groupText' + str(time.time()) + '.png', img_as_ubyte(cropped))
                     for regionText in regionsCroppedLabel:
                         minrTxt, mincTxt, maxrTxt, maxcTxt = regionText.bbox
                         # VALIDATE RATIO TEXT
@@ -109,7 +109,7 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea):
                                                       fill=False, edgecolor='blue', linewidth=2)
                             ax.add_patch(rect)
                             croppedText = binaryImage[minrS:maxrS, mincS:maxcS]
-                            # io.imsave('../output/region-split-text/spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
+                            io.imsave('../output/region-split-text/spltText' + str(time.time()) + '.png', img_as_ubyte(croppedText))
                             # viewr = ImageViewer(regionText.image)
                             # viewr.show()
 
