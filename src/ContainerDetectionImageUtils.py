@@ -5,6 +5,7 @@ from skimage.measure import label, regionprops
 from skimage.viewer import ImageViewer
 from skimage.restoration import denoise_tv_chambolle
 from skimage.filters import try_all_threshold
+from skimage.color import rgb2gray
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from scipy import ndimage as ndi
@@ -15,15 +16,16 @@ import os
 
 # PREPARE IMAGE FOR SEGMENTATION
 def preProcessImage(image):
+    grayImage = rgb2gray(image)
     # DENOISE IMAGE
-    denoiseImage = denoise_tv_chambolle(image)
+    denoiseImage = denoise_tv_chambolle(grayImage)
     # CROP INTEREST PART FOR THRESHOLD
     minInterestHeight, maxInterestHeight, minInterestWidth, maxInterestWidth = getInterestCroppedArea(denoiseImage)
     croppedInputImage = denoiseImage[minInterestHeight:maxInterestHeight, minInterestWidth:maxInterestWidth]
-    fig, ax = plt.subplots(figsize=(4, 3))
-    ax.imshow(croppedInputImage, cmap=plt.cm.gray)
-    ax.set_title('input')
-    ax.axis('off')
+    # fig, ax = plt.subplots(figsize=(4, 3))
+    # ax.imshow(croppedInputImage, cmap=plt.cm.gray)
+    # ax.set_title('input')
+    # ax.axis('off')
     # TEST THRESHOLD
     # fig, ax = try_all_threshold(croppedInputImage, figsize=(10, 8), verbose=False)
     # plt.show()
@@ -42,17 +44,17 @@ def preProcessImage(image):
     # ax.axis('off')
     # FILLING HOLD FROM EDGE DETECTION
     filled_img = ndi.binary_fill_holes(can)
-    fig, ax = plt.subplots(figsize=(4, 3))
-    ax.imshow(filled_img, cmap=plt.cm.gray)
-    ax.set_title('filled_image')
-    ax.axis('off')
+    # fig, ax = plt.subplots(figsize=(4, 3))
+    # ax.imshow(filled_img, cmap=plt.cm.gray)
+    # ax.set_title('filled_image')
+    # ax.axis('off')
     # DILATION FOR TEXT DETECTION
     dilationImage = closing(filled_img, rectangle(5, const.TOP_VIEW_DILATION_HORIZONTAL_SIZE))
-    fig, ax = plt.subplots(figsize=(4, 3))
-    ax.imshow(dilationImage, cmap=plt.cm.gray)
-    ax.set_title('bw')
-    ax.axis('off')
-    plt.show()
+    # fig, ax = plt.subplots(figsize=(4, 3))
+    # ax.imshow(dilationImage, cmap=plt.cm.gray)
+    # ax.set_title('bw')
+    # ax.axis('off')
+    # plt.show()
     interestedArea = CustomImageClass(minInterestHeight, maxInterestHeight, minInterestWidth, maxInterestWidth)
     return dilationImage, binaryImage, interestedArea
 
