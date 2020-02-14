@@ -62,6 +62,8 @@ def preProcessImage(image):
 
 def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea, outputFolderPath):
     labeledImage = label(dilationImage)
+    # INDEX FILE GROUP TEXT
+    indexFileGroupText = 1
     for region in regionprops(labeledImage):
         # take regions with large enough areas
         if region.area >= const.MIN_REGION_AREA_GROUP_TEXT:
@@ -93,10 +95,10 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea, ou
                     ax.add_patch(rect)
                     # SAVE GROUP TEXT
                     io.imsave(
-                        outputFolderPath + const.REGION_GROUP_TEXT_FOLDER_NAME + 'groupText' + getDateTimeStrWithFormat(
-                            const.DATE_TIME_PATTERN_FOLDER_NAME) + '.png', img_as_ubyte(cropped))
+                        outputFolderPath + const.REGION_GROUP_TEXT_FOLDER_NAME + 'groupText' + str(indexFileGroupText) + '.png', img_as_ubyte(cropped))
+                    indexFileGroupText += 1
                     # INDEX FILE
-                    indexFile = 1
+                    indexFileText = 1
                     for regionText in regionsCroppedLabel:
                         minrTxt, mincTxt, maxrTxt, maxcTxt = regionText.bbox
                         # VALIDATE RATIO TEXT
@@ -121,8 +123,8 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea, ou
                             # viewr.show()
                             io.imsave(
                                 outputFolderPath + const.REGION_SPLIT_TEXT_FOLDER_NAME + 'spltText' + str(
-                                    indexFile) + '.png', img_as_ubyte(croppedText))
-                            indexFile += 1
+                                    indexFileText) + '.png', img_as_ubyte(croppedText))
+                            indexFileText += 1
 
 
 def getInterestCroppedArea(image):
