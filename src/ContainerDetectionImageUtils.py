@@ -1,18 +1,16 @@
-from skimage import filters, io, img_as_ubyte
-from skimage.feature import canny
-from skimage.morphology import closing, rectangle
-from skimage.measure import label, regionprops
-from skimage.viewer import ImageViewer
-from skimage.restoration import denoise_tv_chambolle
-from skimage.filters import try_all_threshold
-from skimage.color import rgb2gray
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from scipy import ndimage as ndi
-from datetime import datetime
-import ContainerDetectionConstant as const
-from CustomImageClass import CustomImageClass
 import os
+from datetime import datetime
+
+import ContainerDetectionConstant as const
+import matplotlib.patches as mpatches
+from CustomImageClass import CustomImageClass
+from scipy import ndimage as ndi
+from skimage import filters, io, img_as_ubyte
+from skimage.color import rgb2gray
+from skimage.feature import canny
+from skimage.measure import label, regionprops
+from skimage.morphology import closing, rectangle
+from skimage.restoration import denoise_tv_chambolle
 
 
 # PREPARE IMAGE FOR SEGMENTATION
@@ -97,6 +95,8 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea, ou
                     io.imsave(
                         outputFolderPath + const.REGION_GROUP_TEXT_FOLDER_NAME + 'groupText' + getDateTimeStrWithFormat(
                             const.DATE_TIME_PATTERN_FOLDER_NAME) + '.png', img_as_ubyte(cropped))
+                    # INDEX FILE
+                    indexFile = 1
                     for regionText in regionsCroppedLabel:
                         minrTxt, mincTxt, maxrTxt, maxcTxt = regionText.bbox
                         # VALIDATE RATIO TEXT
@@ -117,11 +117,12 @@ def doGetCroppedTextFromImage(dilationImage, binaryImage, ax, interestedArea, ou
                                                       fill=False, edgecolor='blue', linewidth=2)
                             ax.add_patch(rect)
                             croppedText = binaryImage[minrS:maxrS, mincS:maxcS]
-                            io.imsave(
-                                outputFolderPath + const.REGION_SPLIT_TEXT_FOLDER_NAME + 'spltText' + getDateTimeStrWithFormat(
-                                    const.DATE_TIME_PATTERN_FOLDER_NAME) + '.png', img_as_ubyte(croppedText))
-                            # viewr = ImageViewer(regionText.image)
+                            # viewr = ImageViewer(croppedText)
                             # viewr.show()
+                            io.imsave(
+                                outputFolderPath + const.REGION_SPLIT_TEXT_FOLDER_NAME + 'spltText' + str(
+                                    indexFile) + '.png', img_as_ubyte(croppedText))
+                            indexFile += 1
 
 
 def getInterestCroppedArea(image):

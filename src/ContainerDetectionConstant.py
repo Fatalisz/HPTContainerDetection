@@ -1,5 +1,5 @@
 # INPUT FOLDER
-INPUT_FOLDER_CONDITION = '../images/ContainerAllSides/Top/*.jpg:../images/ContainerAllSides/Top/*.png'
+INPUT_FOLDER_CONDITION = '../images/ContainerAllSides/Test/*.png'
 # OUTPUT FOLDER
 OUTPUT_FOLDER_NAME = 'output/'
 INPUT_FOLDER_NAME = 'input-image/'
